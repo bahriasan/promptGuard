@@ -78,7 +78,7 @@ Güncellenen politika aynı URL üzerinden yayınlanacaktır.
 
 Prompt Guard hakkında gizlilik veya veri kullanımı ile ilgili sorularınız için aşağıdaki iletişim adresinden bizimle iletişime geçebilirsiniz:
 
-**E-posta:** [E-POSTA ADRESİNİ BURAYA YAZ]
+**E-posta:** [bahriasan.mh@gmail.com]
 
 ---
 
