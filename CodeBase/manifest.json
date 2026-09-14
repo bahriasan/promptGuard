@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Prompt Guard",
+  "version": "0.1.0",
+  "description": "Blocks ChatGPT prompts containing configured forbidden words.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html"
+}
