@@ -1,8 +1,9 @@
 {
-  "version": 0,
+  "version": 1,
   "blockedWords": [
     "secret",
     "password",
-    "api_key"
+    "api_key",
+    "mpm"
   ]
 }
