@@ -1,11 +1,12 @@
 (() => {
-  const DEFAULT_BLOCKED_WORDS = ["secret", "password", "api_key"];
+  const DEFAULT_BLOCKED_WORDS = [];
   const REMOTE_CONFIG_URL = 
     "https://raw.githubusercontent.com/bahriasan/promptGuard/refs/heads/main/blockedWords.json";
   
   const UPDATE_INTERVAL = 1 * 60 * 1000;
 
   let blockedWords = DEFAULT_BLOCKED_WORDS.slice();
+  let blockedWordsVersion = 0
 
 
   chrome.storage.local.get({ blockedWords: DEFAULT_BLOCKED_WORDS, blockedWordsVersion: 0 }, (data) => {
@@ -24,13 +25,14 @@
   });
 
 
-  chrome.storage.onChanged.addListener((changes, area) => {
+//options.html kullanılırsa bu kısım çalışmalı
+/*   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && changes.blockedWords) {
       blockedWords = Array.isArray(changes.blockedWords.newValue)
         ? changes.blockedWords.newValue.filter(Boolean)
         : [];
     }
-  });
+  }); */
 
 
   async function updateFromGitHub(localVersion) {
@@ -58,7 +60,7 @@
         throw new Error("Geçersiz blocked-words.json");
       }
 
-      const remoteVersion = Number(remoteData.version) || 0;
+      const remoteVersion = Number(remoteData.rulesVersion) || 0;
 
       console.log(
         "[Prompt Guard] Local version:",
@@ -77,6 +79,9 @@
           blockedWords: newWords,
           blockedWordsVersion: remoteVersion
         });
+
+        blockedWords = newWords;
+        blockedWordsVersion = remoteVersion;
 
         console.log(
           "[Prompt Guard] Merkezi liste güncellendi:",
@@ -175,16 +180,46 @@
       .replaceAll("'", "&#039;");
   }
 
+  async function sendPrompt(prompt, isBlocked, matchedWords){
+    try{
+      const response = await fetch("http://localhost:8000/api/prompts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt,
+          blocked: isBlocked,
+          matchedWords,
+          extensionVersion: chrome.runtime.getManifest().version,
+          blockedWordsVersion: String(blockedWordsVersion),
+          timestamp: new Date().toISOString()
+        })
+      });
+      console.log("[Prompt Guard] Backend response:", response.status);
+      console.log("[Prompt Guard] Backend body:", await response.text());
+    }
+    catch(error) {
+      console.error("[Prompt Guard] Backend error:", error);
+    }
+  }
+
   function shouldBlock() {
     const prompt = getPromptText();
+    console.log("[Prompt Guard] Yakalanan prompt:", prompt);
     if (!prompt) return false;
 
     const matches = findMatches(prompt);
-    if (matches.length) {
+    const blocked = matches.length > 0;
+    sendPrompt(prompt, blocked, matches)
+    console.log("[Prompt Guard] Eşleşen kelimeler:", matches);
+    
+    if (blocked) {
       showBlocked(matches);
       return true;
     }
     return false;
+
   }
 
   // Enter ile gönderimi engelle.
