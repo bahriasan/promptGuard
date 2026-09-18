@@ -1,5 +1,5 @@
 {
-  "rulesVersion": 1.2,
+  "rulesVersion": 2,
   "blockedWords": [
     "secret",
     "password",
