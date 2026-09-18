@@ -1,10 +1,11 @@
 {
-  "rulesVersion": 1.1,
+  "rulesVersion": 1.2,
   "blockedWords": [
     "secret",
     "password",
     "api_key",
     "mpm",
-    "radar"
+    "radar",
+    "twt"
   ]
 }
